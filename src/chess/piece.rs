@@ -1,5 +1,3 @@
-
-
 pub struct Pieces;
 
 impl Pieces {
@@ -13,6 +11,3 @@ impl Pieces {
     pub const PAWN: usize = 5;
     pub const EMPTY: usize = 6;
 }
-
-
-

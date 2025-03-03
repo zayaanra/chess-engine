@@ -12,15 +12,21 @@ impl Color {
 pub struct Bitboard(pub i64);
 
 pub struct Board {
-    pub bb_side: [Bitboard; 2],         /* Bitboard for each side (WHITE and BLACK) */
-    pub bb_pieces: [[Bitboard; Pieces::NUM_PIECES]; Color::NUM_COLORS]   /* Bitboard for each piece (KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN) */
+    pub bb_side: [Bitboard; Color::NUM_COLORS],         /* Bitboard for each side (WHITE and BLACK) */
+    pub bb_pieces: [[Bitboard; Pieces::NUM_PIECES]; Color::NUM_COLORS],   /* Bitboard for each piece (KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN) */
+    
+    /* Bitboards only tell us if a cell is occupied somewhere in the board. If we want to know where a certain piece is for either black or white, we would 
+    have to loop through every piece's bitboard and see if the bit is set for each cell. This is inefficient, therefore we need another data structure. */
+    pub piece_list: [usize; 64]  
 }
 
 impl Board {
     pub fn new() -> Self {
         let mut board = Self {
-            bb_side: [Bitboard(0); 2],
+            bb_side: [Bitboard(0); Color::NUM_COLORS],
             bb_pieces: [[Bitboard(0); Pieces::NUM_PIECES]; Color::NUM_COLORS],
+
+            piece_list: [0; 64]
         };
         board.init();
         board
@@ -59,6 +65,10 @@ impl Board {
         self.bb_pieces[Color::BLACK][Pieces::KNIGHT] = Bitboard(0x42000000);
         self.bb_pieces[Color::BLACK][Pieces::PAWN] = Bitboard(0xFF00000000);
 
+        // TODO: Next, fill the piece_list. Cells 64-46 have the black pieces. Cells 16-1 have the white pieces. Everything else is an empty cell.
+
+
+
     }
 
     pub fn print(&mut self, bb: Bitboard) {
@@ -66,8 +76,8 @@ impl Board {
 
         for rank in (0..8).rev() {
             for file in 0..8 {
-                let pos= rank * 8 + file;
-                let ch= if ((state >> pos) & 1) == 1 { '1' } else { '0' };
+                let pos = rank * 8 + file;
+                let ch = if ((state >> pos) & 1) == 1 { '1' } else { '0' };
 
                 print!("{ch}");
             }
